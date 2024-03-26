@@ -123,4 +123,4 @@ export NVM_DIR="$HOME/.nvm"
 
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-. ~/.dotfiles/mybashrc
+. ~/.bashrc.mine
