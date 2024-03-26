@@ -1,0 +1,151 @@
+#!/usr/bin/env bash
+
+#######
+# Notes
+#######
+
+# Be sure to set up the fzf functionality.
+# CTRL+T: Paste paths into command
+# CTRL+R: History
+# ALT+C: Change directory
+# $ filename**<tab>
+
+###############
+# Added by nvim
+###############
+
+#export PATH="$PATH:/opt/nvim-linux64/bin"
+
+##############
+# Added by nvm
+##############
+
+#export NVM_DIR="$HOME/.nvm"
+#[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+#[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
+
+##############
+# Added by fzf
+##############
+
+#[ -f ~/.fzf.bash ] && source ~/.fzf.bash
+
+#############
+# Mine
+#############
+
+export PATH="$PATH:~/.local/bin"
+export VISUAL="vim"
+export EDITOR="$VISUAL"
+
+# Name: Fuzzy Find File
+# Description: Find file paths using fzf on filenames
+fzff() {
+	fd --no-ignore --hidden --type f | fzf --multi
+}
+
+# Name: Fuzzy Find Directory
+# Description: Find directory path using fzf on directory names
+fzfd() {
+	fd --no-ignore --hidden --type d | fzf
+}
+
+# Name: Fuzzy Find History
+# Description: Find command in history using fzf
+fzfh() {
+	local selected_command
+	selected_command=$(history | fzf --tac --multi | sed 's/ *[0-9]* *//') # --no-sort
+	if [ -n "$selected_command" ]; then
+		echo "$selected_command"
+	fi
+}
+
+# Name: Fuzzy Find Vim Input (stdin)
+# Description: Open line in vim, chosen using fzf on stdin contents
+fzfvi() {
+	local tempfile
+	tempfile=$(mktemp)
+	cat - >"$tempfile"
+	rg --color=always --no-heading --line-number '' "$tempfile" | fzf \
+		--ansi \
+		--color "hl:-1:underline,hl+:-1:underline:reverse" \
+		--delimiter=':' \
+		--preview "bat --style=numbers --color=always --line-range {1}: --highlight-line {1} '${tempfile}'" \
+		--preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+		--bind "enter:become(nvim '${tempfile}' +{1})" # TODO: quote stuff
+	rm "$tempfile"
+}
+
+# Name: Fuzzy Find Vim File
+# Description: Open line in vim, chosen using fzf on file contents
+fzfvf() {
+	# Check if exactly one argument is passed
+	if [ "$#" -ne 1 ]; then
+		echo "Error: The function requires exactly one argument."
+		return 1 # Return 1 to indicate an error
+	fi
+
+	# Check if the file exists
+	if [ ! -f "$1" ]; then
+		echo "Error: The file '$1' does not exist."
+		return 1 # Return 1 to indicate an error
+	fi
+
+	rg --color=always --no-heading --line-number '' "$1" | fzf \
+		--ansi \
+		--color "hl:-1:underline,hl+:-1:underline:reverse" \
+		--delimiter=':' \
+		--preview "bat --style=numbers --color=always --line-range {1}: --highlight-line {1} $1" \
+		--preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+		--bind "enter:become(nvim '$1' +{1})"
+}
+
+# Name: Fuzzy Find Vim Directory
+# Description: Open line in vim, chosen using fzf on contents of all files in directory, recursive
+fzfvd() {
+	# Check if at least one argument is passed
+	if [ "$#" -lt 1 ]; then
+		echo "Error: The function requires at least one argument."
+		return 1 # Return 1 to indicate an error
+	fi
+
+	# Save the directory path argument
+	local dir_path="$1"
+	# Remove the first argument so $@ contains only the additional arguments
+	shift
+
+	# Check if the directory exists
+	if [ ! -d "$dir_path" ]; then
+		echo "Error: The directory '$dir_path' does not exist."
+		return 1 # Return 1 to indicate an error
+	fi
+
+	# Use "$@" to pass the remaining arguments to rg
+	# Note: "" is replaced with "$@", so rg will receive additional arguments from the function call
+	rg --color=always --no-heading --line-number --with-filename "$@" '' "$dir_path" | fzf \
+		--ansi \
+		--color "hl:-1:underline,hl+:-1:underline:reverse" \
+		--delimiter=':' \
+		--preview "bat --style=numbers --color=always --line-range {2}: --highlight-line {2} {1}" \
+		--preview-window 'up,60%,border-bottom,+{2}+3/3,~3' \
+		--bind 'enter:become(nvim {1} +{2})'
+}
+
+# Name: Fuzzy Find Vim
+# Description: Open line in vim, chosen using fzf on contents of stdin/file/directory
+fzfv() {
+	# Check if exactly zero arguments are passed
+	if [ "$#" -eq 0 ]; then
+		fzfvi
+	elif [ "$#" -eq 1 ] && [ -f "$1" ]; then
+		fzfvf "$@"
+	elif [ "$#" -gt 0 ] && [ -d "$1" ]; then
+		fzfvd "$@"
+	else
+		echo "Error: The function must either: "
+		echo "A) take zero arguments and read stdin, or "
+		echo "B) take one argument that is a file, or "
+		echo "C) take at least one argument that is a directory and rg flags"
+		return 1 # Return 1 to indicate an error
+	fi
+}
