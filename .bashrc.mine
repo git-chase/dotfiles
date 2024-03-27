@@ -38,6 +38,14 @@ export PATH="$PATH:$HOME/.local/bin"
 export VISUAL="nvim"
 export EDITOR="$VISUAL"
 
+# Name: Fuzzy Find File Directory
+# Description: Find directory paths using fzf on filenames
+cdf() {
+	local file
+	local dir
+	file=$(fd --no-ignore --hidden --type f | fzf) && dir=$(dirname "$file") && cd "$dir"
+}
+
 # Name: Fuzzy Find File
 # Description: Find file paths using fzf on filenames
 fzff() {

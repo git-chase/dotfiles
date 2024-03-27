@@ -115,17 +115,8 @@ if ! shopt -oq posix; then
 	fi
 fi
 
-export PATH="$PATH:/opt/nvim-linux64/bin"
-
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 
-# cdf - cd into the directory of the selected file
-cdf() {
-	local file
-	local dir
-	file=$(fzf +m -q "$1") && dir=$(dirname "$file") && cd "$dir"
-}
+export PATH="$PATH:/opt/nvim-linux64/bin"
 
-source $HOME/.bashrc.mine
-
-
+source "$HOME/.bashrc.mine"
