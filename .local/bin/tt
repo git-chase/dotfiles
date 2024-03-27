@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# tt: to trash
+
+# Ensure the ~/.trash directory exists
+mkdir -p ~/.trash
+
+# Check if no arguments.
+if [ "$#" -eq 0 ]; then
+    trashSize=$(du -sh ~/.trash | cut -f1)
+    fileCount=$(find ~/.trash -type f | wc -l)
+    dirCount=$(find ~/.trash -type d | wc -l)
+    echo "Stats for ~/.trash"
+    echo "Files: $fileCount"
+    echo "Directories: $dirCount"
+    echo "Size: $trashSize"
+    exit 0
+fi
+
+# Check if name exists and isn't already in trash.
+for name in "$@"
+do
+    if [ ! -e "$name" ]; then
+        echo "Not found: $name"
+        echo "Not moving anything to ~/.trash."
+        exit 1
+    fi
+    basename=$(basename "$name")
+    if [ -e ~/.trash/"$basename" ]; then
+        echo "Name already exists in ~/.trash: $basename"
+        echo "Not moving anything to ~/.trash."
+        exit 1
+    fi
+done
+
+# Loop through all input arguments
+for name in "$@"
+do
+    # Extract the base name of the file/directory
+    basename=$(basename "$name")
+
+    # Check if the file/directory already exists in ~/.trash
+    if [ -e ~/.trash/"$basename" ]; then
+        echo "Warning: '$basename' already exists in ~/.trash. Not moving: '$name'."
+    else
+        # Move the file/directory to ~/.trash
+        if mv "$name" ~/.trash/ ; then
+            echo "Moved to ~/.trash successfully: $name"
+        else
+            echo "Error: Failed to move: $name."
+        fi
+    fi
+done
+
