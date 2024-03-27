@@ -1,5 +1,6 @@
+// Set to open Windows terminal by default.
 // Set to open Ubuntu by default.
-// Sst to open maximized by default.
+// Set to open maximized by default.
 {
   "profiles": {
     "defaults": {

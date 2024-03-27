@@ -34,8 +34,8 @@
 # Mine
 #############
 
-export PATH="$PATH:~/.local/bin"
-export VISUAL="vim"
+export PATH="$PATH:$HOME/.local/bin"
+export VISUAL="nvim"
 export EDITOR="$VISUAL"
 
 # Name: Fuzzy Find File
