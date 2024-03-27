@@ -149,3 +149,49 @@ fzfv() {
 		return 1 # Return 1 to indicate an error
 	fi
 }
+
+compare_dotfiles() {
+	local left_folder
+	left_folder="$HOME"
+	local right_folder
+	right_folder="$HOME/.dotfiles"
+
+	local -a skip_filenames
+	skip_filenames=('README.md' 'dotnet-version.lua' 'windows-terminal-settings.json')
+
+	# Ensure the right folder exists
+	if [ ! -d "$right_folder" ]; then
+		echo "The right folder ($right_folder) does not exist."
+		return 1
+	fi
+
+	# Loop through each file in the right folder (including hidden files)
+	for file in "$right_folder"/{.,}*; do
+		# Skip if it's "." or ".."
+		[[ $(basename "$file") == "." || $(basename "$file") == ".." ]] && continue
+		[ ! -f "$file" ] && continue
+
+		local filename
+		filename=$(basename "$file")
+
+		# Check if the filename is in the skip list
+		if [[ " ${skip_filenames[*]} " =~ " $filename " ]]; then
+			#echo "Skipping $filename as it's in the skip list."
+			continue
+		fi
+
+		# Check if the file exists in the left folder
+		if [ ! -f "$left_folder/$filename" ]; then
+			echo "File $filename does not exist."
+		else
+			# Compare contents of the two files
+			if ! cmp -s "$file" "$left_folder/$filename"; then
+				echo "File $filename differs."
+				# Open git diff tool to resolve differences
+				git difftool --no-index "$left_folder/$filename" "$file"
+				#else
+				#echo "File $filename is identical in both folders."
+			fi
+		fi
+	done
+}
