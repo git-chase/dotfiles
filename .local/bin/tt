@@ -7,7 +7,8 @@ mkdir -p ~/.trash
 
 # Check if no arguments.
 if [ "$#" -eq 0 ]; then
-    trashSize=$(du -sh ~/.trash | cut -f1)
+    #trashSize=$(du -sh ~/.trash | cut -f1)
+    trashSize=$(find . -type f -exec stat --format="%s" {} + | awk '{sum += $1} END {print sum}' | numfmt --to=iec)
     fileCount=$(find ~/.trash -type f | wc -l)
     dirCount=$(find ~/.trash -type d | wc -l)
     echo "Stats for ~/.trash"
