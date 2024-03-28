@@ -9,5 +9,5 @@ sed -i 's/^local dotnet = "old"/local dotnet = "new"/g' "$FILE_PATH"
 # Step 2: Count and echo lines starting with 'local dotnet = "old"'
 BAD_COUNT=$(rg '^local dotnet = "old"' -c "$FILE_PATH")
 GOOD_COUNT=$(rg '^local dotnet = "new"' -c "$FILE_PATH")
-echo "Instances of 'local dotnet = "old"': $BAD_COUNT"
-echo "Instances of 'local dotnet = "new"': $GOOD_COUNT"
+echo "Instances of 'local dotnet = \"old\"': $BAD_COUNT"
+echo "Instances of 'local dotnet = \"new\"': $GOOD_COUNT"
