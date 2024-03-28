@@ -1,0 +1,41 @@
+#!/bin/bash
+
+compare_dotfiles() {
+	local left_folder="$1"
+	local right_folder="$2"
+	local -a skip_filenames=()
+	#local -a skip_filenames=('README.md' 'dotnet-version.lua' 'windows-terminal-settings.json')
+
+	# Ensure the right folder exists
+	if [ ! -d "$right_folder" ]; then
+		echo "The right folder ($right_folder) does not exist."
+		return 1
+	fi
+
+	# Find all files in the right folder recursively
+	find "$right_folder" -type f | while IFS= read -r file; do
+		# Calculate the relative path from the right_folder
+		local relative_path="${file#"$right_folder"}"
+
+		# Skip specific filenames
+		if printf '%s\n' "${skip_filenames[@]}" | grep -qx "$(basename "$file")"; then
+			continue
+		fi
+
+		# The corresponding path in the left folder
+		local left_path="$left_folder$relative_path"
+
+		if [ ! -f "$left_path" ]; then
+			echo "File ${left_path#"$left_folder"} does not exist in the left folder."
+		else
+			# Compare contents of the two files
+			if ! cmp -s "$file" "$left_path"; then
+				echo "File ${left_path#"$left_folder"} differs."
+				# Open git diff tool to resolve differences
+				git difftool --no-index "$left_path" "$file"
+			fi
+		fi
+	done
+}
+
+compare_dotfiles "$HOME" "$HOME/.dotfiles/home"
