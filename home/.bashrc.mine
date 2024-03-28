@@ -37,6 +37,7 @@
 export PATH="$PATH:$HOME/.local/bin"
 export VISUAL="nvim"
 export EDITOR="$VISUAL"
+export NEOVIM_DOTNET="old"
 
 # Name: Fuzzy Find File Directory
 # Description: Find directory paths using fzf on filenames
