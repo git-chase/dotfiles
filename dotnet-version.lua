@@ -1,5 +1,7 @@
 local dotnet = "new" -- old / new
 
+vim.o.mouse = ""
+
 if dotnet == "old" then
   return {
     {
