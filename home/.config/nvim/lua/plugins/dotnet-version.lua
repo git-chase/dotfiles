@@ -1,4 +1,4 @@
-local dotnet = "new" -- old / new
+local dotnet = os.getenv("NEOVIM_DOTNET") or "old" -- old / new
 
 vim.o.mouse = ""
 
