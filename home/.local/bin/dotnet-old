@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# Define the file path
+FILE_PATH="$HOME/.config/nvim/lua/plugins/dotnet-version.lua"
+
+# Step 1: Replace 'local dotnet = "new"' with 'local dotnet = "old"'
+sed -i 's/^local dotnet = "new"/local dotnet = "old"/g' "$FILE_PATH"
+
+# Step 2: Count and echo lines starting with 'local dotnet = "old"'
+BAD_COUNT=$(rg '^local dotnet = "new"' -c "$FILE_PATH")
+GOOD_COUNT=$(rg '^local dotnet = "old"' -c "$FILE_PATH")
+echo "Instances of 'local dotnet = "new"': $BAD_COUNT"
+echo "Instances of 'local dotnet = "old"': $GOOD_COUNT"
