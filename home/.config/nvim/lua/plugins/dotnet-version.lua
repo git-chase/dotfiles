@@ -1,6 +1,13 @@
 local dotnet = os.getenv("NEOVIM_DOTNET") or "old" -- old / new
 
-vim.o.mouse = ""
+-- vim.o.mouse = ""
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "cs",
+  callback = function()
+    vim.b.autoformat = false
+  end,
+})
 
 if dotnet == "old" then
   return {
